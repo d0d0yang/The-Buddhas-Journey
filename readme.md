@@ -1,12 +1,12 @@
 # The Buddha's Journey: Demo Card Game
 
-A turn-based card game built in Java, inspired by *Journey to the West* and *yu-gi-oh*. Draw from a variety of 15+ unique cards, trigger special effects, and battle enemy AI to reach enlightenment.
+A turn-based card game built in Java, inspired by *Journey to the West* and *Yu-Gi-Oh*. Draw from a variety of 15+ unique cards, trigger special effects, and battle enemy AI to reach enlightenment.
 
 ## Functionality
 
 Game starts with both sides drawing a hand from their deck. On your turn, select a card and place it in one of four lanes. Placing cards may trigger card effect (drain enemy life force, buff other cards, etc). The enemy AI draws and places cards on its own turn using the same rules. The first to drain the opponent's life force to 0 wins.
 
-- **Cards**: 19 total, each with its own life force, power, and unique effect.
+- **Cards**: 19 total, each with its own design, power, and unique card effects.
 - **Lanes**: 4 lanes per side. Card placement, power totals, and effects are all resolved independently for each lane.
 - **Turns**: Alternating player/AI turns with start, battle, and end phases, including timed status effects that persist across turns.
 - **Progression**: Winning a match earns a scripture and unlocks a random enemy bonus card. Progress carries between sessions.

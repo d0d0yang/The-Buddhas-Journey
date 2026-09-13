@@ -2,6 +2,8 @@
 
 A turn-based card game built in Java, inspired by *Journey to the West* and *Yu-Gi-Oh*. Draw from a variety of 15+ unique cards, trigger special effects, and battle enemy AI to reach enlightenment.
 
+<img width="2672" height="1338" alt="image" src="https://github.com/user-attachments/assets/1ab83163-2b08-4790-a11d-712f8b4e7246" />
+
 ## Functionality
 
 Game starts with both sides drawing a hand from their deck. On your turn, select a card and place it in one of four lanes. Placing cards may trigger card effect (drain enemy life force, buff other cards, etc). The enemy AI draws and places cards on its own turn using the same rules. The first to drain the opponent's life force to 0 wins.

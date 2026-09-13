@@ -1,0 +1,109 @@
+import processing.core.PImage;
+import java.util.ArrayList;
+
+public class Hands {
+    private ArrayList<Cards> playerHand = new ArrayList<>();;
+    private ArrayList<Cards> enemyHand = new ArrayList<>();;
+    private int handY = 400; // Fixed Y position for player's hand
+    private int maxHandWidth = 800; // Maximum width the hand can occupy
+    private int screenWidth = 1200; // Screen width for centering cards
+
+    Sketch sketch;
+    Decks decks;
+
+    public Hands(Sketch sketch) {
+        this.sketch = sketch;
+    }
+
+    public void setDecks(Decks decks) {
+        this.decks = decks;
+    }
+
+    public Cards clickHands (Cards selectedCard, int mouseX, int mouseY) {
+        // Card in player hand is clicked (reverse order for enhanced clickability)
+        for (int i = playerHand.size() - 1; i >= 0; i--) {
+            Cards card = playerHand.get(i);
+            if (mouseX >= card.getCurrentX() && mouseX <= card.getCurrentX() + card.getCardWidth() &&
+                    mouseY >= card.getCurrentY() && mouseY <= card.getCurrentY() + card.getCardHeight()) {
+                selectedCard = selectedCard == card ? null : card; // Toggle selection
+                break;
+            }
+        }
+        return selectedCard;
+    }
+
+    // Add card to the hand using cardIndex
+    public void addCardToHand(int hand) {
+        if (hand == 0) {
+            if (decks.getPlayerCurrentDeck().isEmpty()) {
+                decks.loadCurrentDeck(0);
+                decks.shuffleCurrentDeck(0);
+            }
+            Cards card = decks.getPlayerCurrentDeck().get(0);
+            playerHand.add(card); // Add to player's hand
+            sketch.printToConsole("+ You draw: " + card.getCardName());
+            decks.setPlayerCurrentDeck(new ArrayList<>(decks.getPlayerCurrentDeck().subList(1, decks.getPlayerCurrentDeck().size())));
+            /* debug
+            for (int i = 0;i < playerHand.size();i++) {
+                System.out.println(playerHand.get(i));
+            }
+            for (int i = 0;i < playerHand.size();i++) {
+                System.out.println(" ");
+            }
+             */
+
+        } else {
+            if (decks.getEnemyCurrentDeck().isEmpty()) {
+                decks.loadCurrentDeck(1);
+                decks.shuffleCurrentDeck(1);
+            }
+            sketch.printToConsole("- The enemy draws a card");
+            enemyHand.add(decks.getEnemyCurrentDeck().get(0)); // Add to enemy's hand
+            decks.setEnemyCurrentDeck(new ArrayList<>(decks.getEnemyCurrentDeck().subList(1, decks.getEnemyCurrentDeck().size())));
+        }
+    }
+
+    public void removeCardFromHand (int hand) {
+        if (hand == 0) {
+            playerHand.removeFirst();
+        }
+        else {
+            enemyHand.removeFirst();
+        }
+    }
+
+    public void removeCardFromHand (int hand, Cards card) {
+        if (hand == 0) {
+            playerHand.remove(card);
+        }
+        else {
+            enemyHand.remove(card);
+        }
+    }
+
+    // Update card positions in hand
+    public void updateHandPos () {
+        int cardWidth = playerHand.isEmpty() ? 0 : playerHand.get(0).getCardWidth(); // Assume all cards have the same width
+        int totalHandWidth = Math.min(maxHandWidth, playerHand.size() * cardWidth); // Hand width limited by maxHandWidth
+        int overlapSpacing = playerHand.size() > 1 ? (totalHandWidth - cardWidth) / (playerHand.size() - 1) : 0;
+        overlapSpacing = Math.max(overlapSpacing, 10); // Minimum overlap spacing to prevent complete overlap
+
+        int startX = (screenWidth - totalHandWidth) / 2; // Calculate starting X position
+
+        for (int i = 0; i < playerHand.size(); i++) {
+            Cards card = playerHand.get(i);
+            card.setCurrentX(startX + i * overlapSpacing);
+            card.setCurrentY(handY);
+        }
+    }
+
+    // Getter for player's hand
+    public ArrayList<Cards> getPlayerHand() {
+        return playerHand;
+    }
+
+    // Getter for enemy's hand
+    public ArrayList<Cards> getEnemyHand() {
+        return enemyHand;
+    }
+}

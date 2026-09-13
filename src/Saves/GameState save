@@ -1,0 +1,436 @@
+import processing.core.PImage;
+
+import java.util.ArrayList;
+
+public class GameState {
+    // Health
+    private static int playerHealth = 50;
+    private static int enemyHealth = 50;
+
+    // Phase management
+    private boolean newTurn = true;
+    private boolean isBattlePhase = false;
+    private boolean isPlayerTurn = true;
+
+
+    // Status effects
+    private ArrayList<Runnable> playerStartStatusEffects = new ArrayList<>();
+    private ArrayList<Integer> playerStartStatusDurations = new ArrayList<>();
+    private ArrayList<Runnable> playerEndStatusEffects = new ArrayList<>();
+    private ArrayList<Integer> playerEndStatusDurations = new ArrayList<>();
+    private ArrayList<Runnable> enemyStartStatusEffects = new ArrayList<>();
+    private ArrayList<Integer> enemyStartStatusDurations = new ArrayList<>();
+    private ArrayList<Runnable> enemyEndStatusEffects = new ArrayList<>();
+    private ArrayList<Integer> enemyEndStatusDurations = new ArrayList<>();
+
+    // VFX
+    private int vfxStartTime;
+    private int vfxDurationTime;
+    private Runnable currentVFXEffect;
+
+    // Turn count
+    private int turnNum = 0;
+
+    private long phaseStartTime = 0;
+    private final long phaseDelay = 1500;
+
+
+    private int playerCurrentPhase = 0;
+    private int enemyCurrentPhase = 0;
+
+    private long cardPlacementStartTime = 0; // To track the start time for the first card placement
+    private int cardIndex = 0;  // To track the current card being placed
+    private final long cardPlacementDelay = 1000;
+
+    private String winImage = "Images/boardImage.png";
+    private String loseImage = "Images/boardImage.png";
+    private boolean gameOver = false;
+
+    Lanes lanes;
+    Hands hands;
+    Decks decks;
+    Cards cards;
+    Sketch sketch;
+
+    public void setLanes(Lanes lanes) {
+        this.lanes = lanes;
+    }
+
+    public void setHands(Hands hands) {
+        this.hands = hands;
+    }
+
+    public void setDecks(Decks decks) {
+        this.decks = decks;
+    }
+
+    public void setCards(Cards cards) {
+        this.cards = cards;
+    }
+
+    public void setSketch(Sketch sketch) {
+        this.sketch = sketch;
+    }
+
+    public void dealDamageToEnemy(int power) {
+        enemyHealth -= power;
+        if (enemyHealth < 0) enemyHealth = 0;  // Prevent negative health
+    }
+
+    public void dealDamageToPlayer(int power) {
+        playerHealth -= power;
+        if (playerHealth < 0) playerHealth = 0;  // Prevent negative health
+    }
+
+    public void checkGameOver() {
+        if (enemyHealth <= 0) {
+            sketch.printToConsole("< You won!");
+            // Time delay
+            if (!gameOver) {
+                sketch.savemanager.setScriptures(sketch.savemanager.getScriptures() + 1);
+                // PLAY VICTORY VIDEO
+
+            }
+            PImage img = sketch.loadImage(loseImage);
+            img.resize(sketch.uiWidth, sketch.uiHeight);
+            sketch.image(img, 0, 0);
+            gameOver = true;
+        } else if (playerHealth <= 0) {
+            sketch.printToConsole("< You lost!");
+            // Time delay
+            PImage img = sketch.loadImage(loseImage);
+            img.resize(sketch.uiWidth, sketch.uiHeight);
+            sketch.image(img, 0, 0);
+            gameOver = true;
+        }
+    }
+
+    public void runBattlePhase (int user) {
+        if (user == 0) {
+            for (int i = 0; i < lanes.playerLane.size(); i++) {
+                Cards playerCard = lanes.playerLane.get(i);
+                Cards enemyCard = lanes.enemyLane.get(i);
+
+                // If there is player card
+                if (playerCard != null) {
+                    // If there is enemy card
+                    if (enemyCard != null) {
+                        // Damage enemy card or enemy life
+                        enemyCard.setLifeForce(enemyCard.getLifeForce() - playerCard.getPower());
+                        if (enemyCard.getLifeForce() <= 0) {
+                            lanes.enemyLane.set(i, null);
+                            sketch.printToConsole("+ Enemy " + enemyCard.getCardName() + " was defeated");
+                        }
+                    } else {
+                        dealDamageToEnemy(playerCard.getPower());
+                        sketch.printToConsole("+ " + playerCard.getCardName() + " drained the enemy of " + playerCard.getPower() + " life force!");
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < lanes.enemyLane.size(); i++) {
+                Cards playerCard = lanes.playerLane.get(i);
+                Cards enemyCard = lanes.enemyLane.get(i);
+
+                // If there is player card
+                if (enemyCard != null) {
+                    // If there is enemy card
+                    if (playerCard != null) {
+                        // Damage enemy card or enemy life
+                        playerCard.setLifeForce(playerCard.getLifeForce() - enemyCard.getPower());
+                        if (playerCard.getLifeForce() <= 0) {
+                            lanes.playerLane.set(i, null);
+                            sketch.printToConsole("- Your " + playerCard.getCardName() + " was defeated");
+                        }
+                    } else {
+                        dealDamageToPlayer(enemyCard.getPower());
+                        sketch.printToConsole("- The enemy " + enemyCard.getCardName() + " drained " + enemyCard.getPower() + " life force from you!");
+                    }
+                }
+            }
+        }
+    }
+
+    // Start/end phase manager
+    public void runStatusEffects (int phase, int user) {
+        ArrayList <Runnable> statusEffects = null;
+        ArrayList <Integer> statusDurations = null;
+        if (phase == 0) {
+            if (user == 0) {
+                statusEffects = playerStartStatusEffects;
+                statusDurations = playerStartStatusDurations;
+            } else {
+                statusEffects = enemyStartStatusEffects;
+                statusDurations = enemyStartStatusDurations;
+            }
+        } else if (phase == 1) {
+            if (user == 0) {
+                statusEffects = playerEndStatusEffects;
+                statusDurations = playerEndStatusDurations;
+            } else {
+                statusEffects = enemyEndStatusEffects;
+                statusDurations = enemyEndStatusDurations;
+            }
+        }
+
+        if (statusEffects != null) {
+            for (int i = 0; i < statusEffects.size(); i++) {
+                Runnable effect = statusEffects.get(i);
+                // If status
+                if (statusDurations.get(i) > 0) {
+                    statusDurations.set(i, statusDurations.get(i) - 1); // Decrement duration
+                    effect.run();
+                }
+                if (statusDurations.get(i) <= 0) {
+                    statusEffects.remove(i); // Remove the effect from the list
+                    statusDurations.remove(i); // Remove the corresponding duration
+                    i--; // Adjust the index after removal
+                }
+            }
+        }
+    }
+
+
+    public void turnSystem () {
+        // Check game over
+        checkGameOver();
+
+        // Turn increase
+        if (newTurn) {
+            turnNum += 1;
+            newTurn = false;
+        }
+
+        // Player turn
+        if (turnNum % 2 != 0) {
+            // Start phase
+            if (playerCurrentPhase == 0) {
+                isPlayerTurn = true;
+                sketch.printToConsole("< Your turn");
+
+                // Run starting status effects
+                runStatusEffects(0, 0);
+
+                // Draw
+                hands.addCardToHand(0);
+
+                playerCurrentPhase = 1;
+            }
+
+            if (playerCurrentPhase == 1) {
+                // Place phase
+                // Handled by mouseclick
+
+                // Battle phase
+                if (isBattlePhase) {
+                    if (sketch.millis() - phaseStartTime >= phaseDelay) {
+                        runBattlePhase(0);
+                        isBattlePhase = false;
+                        playerCurrentPhase = 2;
+                        phaseStartTime = sketch.millis();
+                    }
+                }
+            }
+
+            if (playerCurrentPhase == 2) {
+                // End phase
+                runStatusEffects(1, 0);
+
+                playerCurrentPhase = 0;
+                newTurn = true;
+            }
+        }
+
+        // Enemy turn
+        else if (turnNum % 2 == 0) {
+            // Start tracking time for the phases
+            if (enemyCurrentPhase == 0 && sketch.millis() - phaseStartTime >= phaseDelay * 4) {  // Draw phase
+                sketch.printToConsole("< Enemy turn");
+                runStatusEffects(0, 1);  // Apply status effects for the enemy's start phase
+                phaseStartTime = sketch.millis();
+                enemyCurrentPhase = 1;  // Move to next phase (Start phase)
+            }
+
+            // After the specified delay, move to the next phase (Start phase)
+            if (enemyCurrentPhase == 1 && sketch.millis() - phaseStartTime >= phaseDelay) {
+                hands.addCardToHand(1);  // Draw a card for the enemy
+                phaseStartTime = sketch.millis();
+                enemyCurrentPhase = 2;  // Move to next phase (Place phase)
+            }
+
+            // After another delay, move to the next phase (Place phase)
+            if (enemyCurrentPhase == 2 && sketch.millis() - phaseStartTime >= phaseDelay * 2) {
+                // Start placing cards one by one with a delay
+                if (cardIndex < lanes.enemyLane.size() && !hands.getEnemyHand().isEmpty()) {
+                    // Check if enough time has passed to place the next card
+                    if (sketch.millis() - cardPlacementStartTime >= cardPlacementDelay) {
+                        if (lanes.enemyLane.get(cardIndex) == null) {
+                            // Place the card in the first available lane
+                            lanes.placeCardInLane(hands.getEnemyHand().get(0), cardIndex + 4);
+                            hands.removeCardFromHand(1);  // Remove the placed card from the hand
+
+                            // Update the card placement start time
+                            cardPlacementStartTime = sketch.millis(); // Reset the time after placing a card
+                        }
+
+                        // Move to the next card index
+                        cardIndex++;
+                    }
+                } else if (cardIndex >= lanes.enemyLane.size() || hands.getEnemyHand().isEmpty()) {
+                    cardIndex = 0;
+                    // All cards have been placed, move to the next phase (Battle phase)
+                    phaseStartTime = sketch.millis();
+                    sketch.printToConsole("< Enemy entered into battle!");
+                    enemyCurrentPhase = 3;  // Move to Battle phase
+                }
+            }
+
+
+            // After another delay, move to the next phase (Battle phase)
+            if (enemyCurrentPhase == 3 && sketch.millis() - phaseStartTime >= phaseDelay * 2) {
+                runBattlePhase(1);  // Run the enemy's battle phase
+                phaseStartTime = sketch.millis();
+                enemyCurrentPhase = 4;  // Move to next phase (End phase)
+            }
+
+            // After another delay, move to the next phase (End phase)
+            if (enemyCurrentPhase == 4 && sketch.millis() - phaseStartTime >= phaseDelay * 3) {
+                runStatusEffects(1, 1);  // Run status effects for the enemy's end phase
+                newTurn = true;  // Signal the end of the turn
+                enemyCurrentPhase = 0;  // Reset phase to start
+                isPlayerTurn = true;  // Switch back to player's turn
+            }
+        }
+    }
+
+
+
+    // Getters and setters
+    public boolean getGameOver() {
+        return gameOver;
+    }
+
+    public int getPlayerHealth() {
+        return playerHealth;
+    }
+
+    public void setPlayerHealth(int playerHealth) {
+        this.playerHealth = playerHealth;
+    }
+
+    public int getEnemyHealth() {
+        return enemyHealth;
+    }
+
+    public void setEnemyHealth(int enemyHealth) {
+        this.enemyHealth = enemyHealth;
+    }
+
+    public boolean getIsPlayerTurn() {
+        return isPlayerTurn;
+    }
+
+    public void setPhaseStartTime(int phaseStartTime) {
+        this.phaseStartTime = phaseStartTime;
+    }
+
+    public boolean getIsBattlePhase() {
+        return isBattlePhase;
+    }
+
+    public void setIsBattlePhase(boolean isBattlePhase) {
+        this.isBattlePhase = isBattlePhase;
+    }
+
+    public int getVFXStartTime() {
+        return vfxStartTime;
+    }
+
+    public void setVFXStartTime(int vfxStartTime) {
+        this.vfxStartTime = vfxStartTime;
+    }
+
+    public int getVFXDurationTime() {
+        return vfxDurationTime;
+    }
+
+    public void setVFXDurationTime(int vfxDurationTime) {
+        this.vfxDurationTime = vfxDurationTime;
+    }
+
+    public Runnable getCurrentVFXEffect() {
+        return currentVFXEffect;
+    }
+
+    public void setCurrentVFXEffect(Runnable currentVFXEffect) {
+        this.currentVFXEffect = currentVFXEffect;
+    }
+
+    public int getTurnNum() {
+        return turnNum;
+    }
+
+    public ArrayList<Runnable> getPlayerStartStatusEffects() {
+        return playerStartStatusEffects;
+    }
+
+    public void setPlayerStartStatusEffects(ArrayList<Runnable> playerStartStatusEffects) {
+        this.playerStartStatusEffects = playerStartStatusEffects;
+    }
+
+    public ArrayList<Integer> getPlayerStartStatusDurations() {
+        return playerStartStatusDurations;
+    }
+
+    public void setPlayerStartStatusDurations(ArrayList<Integer> playerStartStatusDurations) {
+        this.playerStartStatusDurations = playerStartStatusDurations;
+    }
+
+    public ArrayList<Runnable> getPlayerEndStatusEffects() {
+        return playerEndStatusEffects;
+    }
+
+    public void setPlayerEndStatusEffects(ArrayList<Runnable> playerEndStatusEffects) {
+        this.playerEndStatusEffects = playerEndStatusEffects;
+    }
+
+    public ArrayList<Integer> getPlayerEndStatusDurations() {
+        return playerEndStatusDurations;
+    }
+
+    public void setPlayerEndStatusDurations(ArrayList<Integer> playerEndStatusDurations) {
+        this.playerEndStatusDurations = playerEndStatusDurations;
+    }
+
+    public ArrayList<Runnable> getEnemyStartStatusEffects() {
+        return enemyStartStatusEffects;
+    }
+
+    public void setEnemyStartStatusEffects(ArrayList<Runnable> enemyStartStatusEffects) {
+        this.enemyStartStatusEffects = enemyStartStatusEffects;
+    }
+
+    public ArrayList<Integer> getEnemyStartStatusDurations() {
+        return enemyStartStatusDurations;
+    }
+
+    public void setEnemyStartStatusDurations(ArrayList<Integer> enemyStartStatusDurations) {
+        this.enemyStartStatusDurations = enemyStartStatusDurations;
+    }
+
+    public ArrayList<Runnable> getEnemyEndStatusEffects() {
+        return enemyEndStatusEffects;
+    }
+
+    public void setEnemyEndStatusEffects(ArrayList<Runnable> enemyEndStatusEffects) {
+        this.enemyEndStatusEffects = enemyEndStatusEffects;
+    }
+
+    public ArrayList<Integer> getEnemyEndStatusDurations() {
+        return enemyEndStatusDurations;
+    }
+
+    public void setEnemyEndStatusDurations(ArrayList<Integer> enemyEndStatusDurations) {
+        this.enemyEndStatusDurations = enemyEndStatusDurations;
+    }
+}

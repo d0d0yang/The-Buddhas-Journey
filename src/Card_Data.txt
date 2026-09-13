@@ -1,0 +1,132 @@
+cardName: Sun Wukong
+cardIndex: 0
+lifeForce: 4
+power: 4
+cardEffectLore: Drains enemy life force by 2 for 3 turns.
+cardImagePath: Images/Sun Wukong.png
+
+cardName: Tang Sanzang
+cardIndex: 1
+lifeForce: 5
+power: 3
+cardEffectLore: Draw 2 extra cards next turn.
+cardImagePath: Images/Tang Sanzang.png
+
+cardName: Zhu Bajie
+cardIndex: 2
+lifeForce: 2
+power: 2
+cardEffectLore: Grants your 1st and 4th lane cards 1 power.
+cardImagePath: Images/Zhu Bajie.png
+
+cardName: Sha Wujing
+cardIndex: 3
+lifeForce: 1
+power: 2
+cardEffectLore: Grants 3 life force to Zhu, Sun, and Tang.
+cardImagePath: Images/Sha Wujing.png
+
+cardName: White Dragon Horse
+cardIndex: 4
+lifeForce: 2
+power: 1
+cardEffectLore: Grants 2 power to all Tang Sanzang cards
+cardImagePath: Images/White Dragon Horse.png
+
+cardName: Princess Iron Fan
+cardIndex: 5
+lifeForce: 1
+power: 4
+cardEffectLore: Grants your 4th lane card 2 power.
+cardImagePath: Images/Princess Iron Fan.png
+
+cardName: Golden Hooped Staff
+cardIndex: 6
+lifeForce: 1
+power: 1
+cardEffectLore: Grants 3 power to all Sun Wukong cards.
+cardImagePath: Images/Golden Hooped Staff.png
+
+cardName: White Tiger Demon
+cardIndex: 7
+lifeForce: 2
+power: 1
+cardEffectLore: No effect.
+cardImagePath: Images/White Tiger Demon.png
+
+cardName: White Bone Demon
+cardIndex: 8
+lifeForce: 3
+power: 2
+cardEffectLore: No effect.
+cardImagePath: Images/White Bone Demon.png
+
+cardName: Stone Yaoguai
+cardIndex: 9
+lifeForce: 4
+power: 1
+cardEffectLore: No effect.
+cardImagePath: Images/Stone Yaoguai.png
+
+cardName: Wandering Wight
+cardIndex: 10
+lifeForce: 1
+power: 3
+cardEffectLore: No effect.
+cardImagePath: Images/Wandering Wight.png
+
+cardName: Three-Eyed Demon
+cardIndex: 11
+lifeForce: 1
+power: 1
+cardEffectLore: Grants 1 life force to all lane cards for 3 turns.
+cardImagePath: Images/Three-Eyed Demon.png
+
+cardName: Yellow Robed Demon
+cardIndex: 12
+lifeForce: 2
+power: 2
+cardEffectLore: Draw 2 cards.
+cardImagePath: Images/Yellow Robed Demon.png
+
+cardName: Pig Yaoguai
+cardIndex: 13
+lifeForce: 1
+power: 1
+cardEffectLore: Drains 2 life force from the enemy.
+cardImagePath: Images/Pig Yaoguai.png
+
+cardName: Gembu
+cardIndex: 14
+lifeForce: 5
+power: 1
+cardEffectLore: No effect.
+cardImagePath: Images/Gembu.png
+
+cardName: Fire Ogre
+cardIndex: 15
+lifeForce: 2
+power: 3
+cardEffectLore: No effect.
+cardImagePath: Images/Fire Ogre.png
+
+cardName: Ao Guang
+cardIndex: 16
+lifeForce: 3
+power: 2
+cardEffectLore: Drains 3 life force from the enemy.
+cardImagePath: Images/Ao Guang.png
+
+cardName: Bull Demon King
+cardIndex: 17
+lifeForce: 4
+power: 2
+cardEffectLore: No effect.
+cardImagePath: Images/Bull Demon King.png
+
+cardName: Erlang Shen
+cardIndex: 18
+lifeForce: 5
+power: 6
+cardEffectLore: No effect.
+cardImagePath: Images/Erlang Shen.png

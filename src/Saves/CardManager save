@@ -1,0 +1,285 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class CardManager {
+    private Sketch sketch;
+    private ArrayList<Cards> cardList;
+    GameState gameState;
+
+    public CardManager(Sketch sketch) {
+        this.sketch = sketch;
+        cardList = new ArrayList<>();
+    }
+
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
+    }
+
+    // Load the card data from a file and return as a string
+    public String loadCardData(String fileName) {
+        StringBuilder cardData = new StringBuilder();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(fileName));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                cardData.append(line).append("\n");
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return cardData.toString();
+    }
+
+    // Parse the card data from a string and generate Card objects
+    public void parseCardData(String cardData) {
+        String[] cardEntries = cardData.split("\n\n");  // Separate cards by double newline
+        for (String cardEntry : cardEntries) {
+            String[] lines = cardEntry.split("\n");  // Split the card entry into lines
+
+            String cardName = "";
+            int cardIndex = 0;
+            String lore = "";
+            String cardType = "";
+            int lifeForce = 0;
+            int power = 0;
+            String cardEffectLore = "";
+            Runnable cardEffectEffect = () -> System.out.println("placeholder");
+            int cardBorder = 0;
+            String cardImagePath = "";
+
+            // Loop through each line in the card entry and extract values
+            for (String line : lines) {
+                String[] keyValue = line.split(":");  // Split the line into key and value
+                if (keyValue.length == 2) {
+                    String key = keyValue[0].trim();
+                    String value = keyValue[1].trim();
+
+                    switch (key) {
+                        case "cardName":
+                            cardName = value;
+                            break;
+                        case "cardIndex":
+                            cardIndex = Integer.parseInt(value);
+                            break;
+                        case "lore":
+                            lore = value;
+                            break;
+                        case "cardType":
+                            cardType = value;
+                            break;
+                        case "lifeForce":
+                            lifeForce = Integer.parseInt(value);
+                            break;
+                        case "power":
+                            power = Integer.parseInt(value);
+                            break;
+                        case "cardEffectLore":
+                            cardEffectLore = value;
+                            break;
+                        case "cardBorder":
+                            cardBorder = Integer.parseInt(value);
+                            break;
+                        case "cardImagePath":
+                            cardImagePath = value;
+                            break;
+                    }
+                }
+            }
+
+            // Create the card and add it to the list
+            Cards card = new Cards(sketch, cardName, cardIndex, lore, runnableEffects(cardIndex)[0],
+                    runnableEffects(cardIndex)[1], cardType, lifeForce, power, cardEffectLore,
+                    cardBorder, cardImagePath);
+            cardList.add(card);
+        }
+    }
+
+
+
+    // Runnable effects (can't assign using txt file because String-runnable conversion)
+    public Runnable [] runnableEffects (int cardIndex){
+        // Runnable effect[0] is effect for player
+        // Runnable effect[1] is effect for enemy
+        Runnable[] runnableEffects = new Runnable[2];
+        if (cardIndex == 0) {
+            runnableEffects[0] = () -> {
+                // VFX time data
+                System.out.println("Player VFX: Sun Wukong");
+                gameState.setVFXStartTime(sketch.millis());
+                gameState.setVFXDurationTime(2000);
+                sketch.printToConsole("*** SUN WUKONG'S GOLDEN HEADBAND SHAKES THE EARTH ***");
+
+                // VFX effect
+                gameState.setCurrentVFXEffect(() -> {
+                    sketch.noStroke();
+                    sketch.fill(255, 255, 0, 55);  // Yellow with transparency
+                    sketch.rect(0, 0, sketch.width, sketch.height);  // Draw full screen overlay
+                });
+
+                // Status effects
+                ArrayList<Runnable> statusEffect = gameState.getPlayerEndStatusEffects();
+                statusEffect.add(() -> {
+                    sketch.printToConsole("+ SUN WUKONG EFFECT - Drain enemy for 2 life force");
+                    gameState.dealDamageToEnemy(2);
+                });
+                gameState.setPlayerEndStatusEffects(statusEffect);
+
+                ArrayList<Integer> statusDuration = gameState.getPlayerEndStatusDurations();
+                statusDuration.add(3);
+                gameState.setPlayerEndStatusDurations(statusDuration);
+
+
+            };
+            runnableEffects[1] = () -> {
+                // VFX time data
+                System.out.println("Enemy VFX: Sun Wukong");
+                gameState.setVFXStartTime(sketch.millis());
+                gameState.setVFXDurationTime(2000);
+
+                // VFX effect
+                gameState.setCurrentVFXEffect(() -> {
+                    sketch.noStroke();
+                    sketch.fill(255, 255, 0, 55);  // Yellow with transparency
+                    sketch.rect(0, 0, sketch.width, sketch.height);  // Draw full screen overlay
+                });
+
+                // Status effects
+                ArrayList<Runnable> statusEffect = gameState.getEnemyStartStatusEffects();
+                statusEffect.add(() -> {
+                    System.out.println("- ENEMY SUN WUKONG EFFECT - Drains your life force by 2");
+                    gameState.dealDamageToPlayer(2);
+                });
+                gameState.setEnemyStartStatusEffects(statusEffect);
+
+                ArrayList<Integer> statusDuration = gameState.getEnemyStartStatusDurations();
+                statusDuration.add(3);
+                gameState.setEnemyStartStatusDurations(statusDuration);
+            };
+        }
+
+        else if (cardIndex == 1) {
+            runnableEffects[0] = () -> {
+                // VFX time data
+                System.out.println("Player VFX: Tang Sanzang");
+                gameState.setVFXStartTime(sketch.millis());
+                gameState.setVFXDurationTime(1000);
+                sketch.printToConsole("*** THE BUDDHA ***");
+
+                // VFX effect
+                gameState.setCurrentVFXEffect(() -> {
+                    // play video
+                });
+
+                // Status effects
+                ArrayList<Runnable> statusEffect = gameState.getPlayerStartStatusEffects();
+                statusEffect.add(() -> {
+                    sketch.printToConsole("+ TANG SANZANG EFFECT - Draw 2 cards");
+                    gameState.hands.addCardToHand(0);
+                    gameState.hands.addCardToHand(0);
+                });
+
+                gameState.setPlayerStartStatusEffects(statusEffect);
+
+                ArrayList<Integer> statusDuration = gameState.getPlayerStartStatusDurations();
+                statusDuration.add(1);
+                gameState.setPlayerStartStatusDurations(statusDuration);
+            };
+            runnableEffects[1] = () -> {
+                // VFX time data
+                System.out.println("Enemy VFX: Tang Sanzang");
+
+                // VFX effect
+                // None
+
+                // Status effects
+                // None
+            };
+        }
+
+        else if (cardIndex == 2) {
+            runnableEffects[0] = () -> {
+                // VFX time data
+                System.out.println("Player VFX: Zhu Bajie");
+
+                // VFX effect
+                // None
+
+                // Effects
+                Cards card1 = gameState.lanes.playerLane.get(0);
+                Cards card2 = gameState.lanes.playerLane.get(3);
+                if (card1 != null) {
+                    card1.setPower(card1.getPower() + 2);
+                    sketch.printToConsole("+ ZHU BAJIE EFFECT - Buffed " + card1.getCardName() + " for 2 power");
+                }
+                if (card2 != null) {
+                    card2.setPower(card2.getPower() + 2);
+                    sketch.printToConsole("+ ZHU BAJIE EFFECT - Buffed " + card2.getCardName() + " for 2 power");
+                }
+            };
+            runnableEffects[1] = () -> {
+                // VFX time data
+                System.out.println("Enemy VFX: Zhu Bajie");
+
+                // VFX effect
+                // None
+
+                // Status effects
+                // None
+            };
+        }
+
+        else if (cardIndex == 3) {
+            runnableEffects[0] = () -> {
+                // VFX time data
+                System.out.println("Player VFX: Sha Wujing");
+
+                // VFX effect
+                // None
+
+                // Status effects
+                ArrayList<Runnable> statusEffect = gameState.getPlayerStartStatusEffects();
+                statusEffect.add(() -> {
+                    for (int i = 0;i < gameState.lanes.playerLane.size();i++) {
+                        Cards card = gameState.lanes.playerLane.get(i);
+                        if (card != null) {
+                            card.setLifeForce(card.getLifeForce() + 2);
+                            sketch.printToConsole("+ SHA WUJING EFFECT - Healed " + card.getCardName() + " for 2 life force");
+                        }
+                    }
+                });
+                gameState.setPlayerStartStatusEffects(statusEffect);
+
+                ArrayList<Integer> statusDuration = gameState.getPlayerStartStatusDurations();
+                statusDuration.add(1);
+                gameState.setPlayerStartStatusDurations(statusDuration);
+            };
+            runnableEffects[1] = () -> {
+                // VFX time data
+                System.out.println("Enemy VFX: Sha Wujing");
+
+                // VFX effect
+                // None
+
+                // Status effects
+                // None
+            };
+        }
+
+        // No effect cards
+        else {
+            runnableEffects[0] = () -> System.out.println("Player VFX: No Effect");
+            runnableEffects[1] = () -> System.out.println("Enemy Effect: No Effect");
+        }
+
+        return runnableEffects;
+    }
+
+    // Getters and setters
+    public ArrayList<Cards> getCardList() {
+        return cardList;
+    }
+}
+

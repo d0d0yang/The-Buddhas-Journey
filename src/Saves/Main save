@@ -1,0 +1,16 @@
+import processing.core.PApplet;
+
+// The
+
+class Main {
+    public static void main(String[] args) {
+        // Create an instance of PApplet to use its color() method
+        PApplet app = new PApplet();
+
+        // Initialize the sketch with the cars
+        Sketch sketch = new Sketch();
+
+        // Start the sketch
+        PApplet.runSketch(new String[]{"Sketch"}, sketch);
+    }
+}

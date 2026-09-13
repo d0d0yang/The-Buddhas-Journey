@@ -1,0 +1,168 @@
+import processing.core.PApplet;
+import processing.core.PImage;
+
+public class Cards implements Cloneable {
+    private String cardName;
+    private int cardIndex;
+    private String lore;
+    private Runnable playerCardEffect;
+    private Runnable enemyCardEffect;
+    private String cardType;
+    private int lifeForce;
+    private int power;
+    private String cardEffectLore;
+    private int cardBorder;
+    private String cardImagePath;
+    private int currentLane, currentX, currentY;
+    private int cardWidth = 140;
+    private int cardHeight = 180;
+    private PImage cardImage;
+
+    // Constructor for an Entity card
+    public Cards(Sketch sketch, String cardName, int cardIndex, String lore, Runnable playerCardEffect, Runnable enemyCardEffect, String cardType, int lifeForce, int power,
+                 String cardEffectLore, int cardBorder, String cardImagePath) {
+        this.cardName = cardName;
+        this.cardIndex = cardIndex;
+        this.lore = lore;
+        this.playerCardEffect = playerCardEffect;
+        this.enemyCardEffect = enemyCardEffect;
+        this.cardType = cardType;
+        this.lifeForce = lifeForce;
+        this.power = power;
+        this.cardEffectLore = cardEffectLore;
+        this.cardBorder = cardBorder;
+        this.cardImagePath = cardImagePath;
+        this.cardImage = sketch.loadImage(cardImagePath);
+        this.currentLane = 0;
+        this.currentX = -9999;
+        this.currentY = -9999;
+    }
+
+    // Method to play the card
+    public void playCard(Cards card, int user) {
+        if (user == 0) {
+            System.out.println("Player run effects");
+            card.playerCardEffect.run();
+        } else {
+            System.out.println("Enemy run effects");
+            card.enemyCardEffect.run();
+        }
+    }
+
+    @Override
+    protected Cards clone() {
+        try {
+            Cards clonedCard = (Cards) super.clone();
+
+            // Deep clone any mutable or special fields if needed
+            // Clone cardImage if it's necessary to have separate images
+            if (this.cardImage != null) {
+                clonedCard.cardImage = this.cardImage.copy(); // Assuming PImage has a copy method
+            }
+
+            return clonedCard;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError("Cloning not supported", e);
+        }
+    }
+
+
+
+    // Getters and setters
+    @Override
+    public String toString() {
+        return "Cards{" +
+                "cardName='" + cardName + '\'' +
+                ", cardIndex=" + cardIndex +
+                ", lore='" + lore + '\'' +
+                ", cardType='" + cardType + '\'' +
+                ", lifeForce=" + lifeForce +
+                ", power=" + power +
+                ", cardImagePath='" + cardImagePath + '\'' +
+                '}';
+    }
+
+    public String getCardName() {
+        return cardName;
+    }
+
+    public int getCardIndex() {
+        return cardIndex;
+    }
+
+    public String getLore() {
+        return lore;
+    }
+
+    public String getCardType() {
+        return cardType;
+    }
+
+    public int getLifeForce() {
+        return lifeForce;
+    }
+
+    public void setLifeForce(int lifeForce) {
+        this.lifeForce = lifeForce;
+    }
+
+    public int getPower() {
+        return power;
+    }
+
+    public void setPower(int power) {
+        this.power = power;
+    }
+
+    public String getCardEffectLore() {
+        return cardEffectLore;
+    }
+
+    public int getCardBorder() {
+        return cardBorder;
+    }
+
+    public void setCardBorder(int cardBorder) {
+        this.cardBorder = cardBorder;
+    }
+
+    public String getCardImagePath() {
+        return cardImagePath;
+    }
+
+    public int getCurrentLane() {
+        return currentLane;
+    }
+
+    public void setCurrentLane(int currentLane) {
+        this.currentLane = currentLane;
+    }
+
+    public int getCurrentX() {
+        return currentX;
+    }
+
+    public void setCurrentX(int currentX) {
+        this.currentX = currentX;
+    }
+
+    public int getCurrentY() {
+        return currentY;
+    }
+
+    public void setCurrentY(int currentY) {
+        this.currentY = currentY;
+    }
+
+    public int getCardWidth() {
+        return cardWidth;
+    }
+
+    public int getCardHeight() {
+        return cardHeight;
+    }
+
+    public PImage getCardImage() {
+        return cardImage;
+    }
+}

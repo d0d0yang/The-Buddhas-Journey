@@ -1,0 +1,102 @@
+import java.util.ArrayList;
+
+public class Decks {
+    ArrayList<Cards> cardList;
+    private ArrayList<Cards> playerCurrentDeck;
+    private ArrayList<Cards> playerFullDeck;
+    private ArrayList<Cards> enemyCurrentDeck;
+    private ArrayList<Cards> enemyFullDeck;
+
+    public Decks () {
+        this.playerCurrentDeck = new ArrayList<>();
+        this.playerFullDeck = new ArrayList<>();
+        this.enemyCurrentDeck = new ArrayList<>();
+        this.enemyFullDeck = new ArrayList<>();
+    }
+
+    public void setCardList(ArrayList<Cards> cardList) {
+        this.cardList = cardList;
+    }
+
+    // Add card to the hand using cardIndex
+    public void addCardToDeck(int deck, int cardIndex) {
+        // Search for the card in the cardList using the cardIndex
+        for (Cards card : cardList) {
+            if (card.getCardIndex() == cardIndex) {
+                try {
+                    // Clone the card
+                    Cards clonedCard = card.clone();
+
+                    // Add the cloned card to the appropriate deck
+                    if (deck == 0) {
+                        playerFullDeck.add(clonedCard); // Add to player's deck
+                    } else {
+                        enemyFullDeck.add(clonedCard); // Add to enemy's deck
+                    }
+                    return; // Exit after adding the cloned card
+                } catch (Exception e) {
+                    System.out.println("Error cloning card: " + e.getMessage());
+                }
+            }
+        }
+        // If no card is found, print an error message
+        System.out.println("Card with index " + cardIndex + " not found in cardList.");
+    }
+
+    // Reload deck
+    public void loadCurrentDeck (int deck) {
+        if (deck == 0) {
+            // Clear the current deck before reloading
+            playerCurrentDeck.clear();
+
+            // Clone each card from the full deck and add it to the current deck
+            for (Cards card : playerFullDeck) {
+                try {
+                    Cards clonedCard = card.clone(); // Clone the card
+                    playerCurrentDeck.add(clonedCard); // Add the cloned card to the player's current deck
+                } catch (Exception e) {
+                    System.out.println("Error cloning card: " + e.getMessage());
+                }
+            }
+        } else {
+            // Clear the current deck before reloading
+            enemyCurrentDeck.clear();
+
+            // Clone each card from the full deck and add it to the current deck
+            for (Cards card : enemyFullDeck) {
+                try {
+                    Cards clonedCard = card.clone(); // Clone the card
+                    enemyCurrentDeck.add(clonedCard); // Add the cloned card to the enemy's current deck
+                } catch (Exception e) {
+                    System.out.println("Error cloning card: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    // Shuffle deck
+    public void shuffleCurrentDeck (int deck) {
+        if (deck == 0) {
+            java.util.Collections.shuffle(playerCurrentDeck);
+        } else {
+            java.util.Collections.shuffle(enemyCurrentDeck);
+        }
+    }
+
+    // Getters and setters
+    public ArrayList<Cards> getPlayerCurrentDeck () {
+        return playerCurrentDeck;
+    }
+
+    public void setPlayerCurrentDeck (ArrayList<Cards> playerCurrentDeck) {
+        this.playerCurrentDeck = playerCurrentDeck;
+    }
+
+    public ArrayList<Cards> getEnemyCurrentDeck () {
+        return enemyCurrentDeck;
+    }
+
+    public void setEnemyCurrentDeck (ArrayList<Cards> enemyCurrentDeck) {
+        this.enemyCurrentDeck = enemyCurrentDeck;
+    }
+}

@@ -1,0 +1,93 @@
+import java.util.ArrayList;
+
+public class Lanes {
+    Sketch sketch;
+    ArrayList<Cards> playerLane;
+    ArrayList<Cards> enemyLane;
+    int laneWidth = 140;
+    int laneHeight = 180;
+    int numLanes = 4;
+    int laneSpacing = 10; // Space between lanes
+    int totalWidth = numLanes * laneWidth + (numLanes - 1) * laneSpacing; // Total width occupied by lanes
+    int startX = (1200 - totalWidth) / 2; // Calculate starting X position to center the lanes
+
+    public Lanes(Sketch sketch) {
+        this.sketch = sketch;
+        playerLane = new ArrayList<>(numLanes);  // Create a fixed size list of 4 lanes
+        enemyLane = new ArrayList<>(numLanes);
+        updateLanes();
+    }
+
+    public void updateLanes (){
+        // If the playerLane does not have enough slots for the selected lane, expand it
+        while (playerLane.size() < numLanes) {
+            playerLane.add(null);  // Add null placeholders for empty lanes
+        }
+        // If the enemyLane does not have enough slots for the selected lane, expand it
+        while (enemyLane.size() < numLanes) {
+            enemyLane.add(null);  // Add null placeholders for empty lanes
+        }
+    }
+
+    public void drawLanes() {
+        // Draw the player lanes
+        for (int i = 0; i < numLanes; i++) {
+            int x = startX + i * (laneWidth + laneSpacing);
+            int y = sketch.height - 330; // Player's lane at the bottom
+            sketch.fill(0, 170);
+            sketch.stroke(255);
+            sketch.rect(x, y, laneWidth, laneHeight); // Draw the player's lane
+        }
+
+        // Draw the opponent lanes (top of the screen)
+        for (int i = 0; i < numLanes; i++) {
+            int x = startX + i * (laneWidth + laneSpacing);
+            int y = 30; // Enemy's lane at the top
+            sketch.fill(0, 170);
+            sketch.stroke(255);
+            sketch.rect(x, y, laneWidth, laneHeight); // Draw the opponent's lane
+        }
+    }
+
+    public int checkLaneClick(int mouseX, int mouseY, boolean isEnemyLane) {
+        // Check if the mouse click is within a lane (either player or enemy)
+        for (int i = 0; i < numLanes; i++) {
+            int x = startX + i * (laneWidth + laneSpacing);
+            int y = isEnemyLane ? 30 : sketch.height - 330;  // Enemy's lane is at the top, player's lane is at the bottom
+            if (mouseX >= x && mouseX <= x + laneWidth && mouseY >= y && mouseY <= y + laneHeight) {
+                if (isEnemyLane) {
+                    i += numLanes;
+                }
+                System.out.println("Lane: " + i + "       X: " + x + "       Y: " + y);
+                return i;
+
+            }
+        }
+        return -1;  // No lane clicked
+    }
+
+    public void placeCardInLane(Cards card, int laneIndex) {
+        // Ensure that there is space in the lane by checking the size
+        if (laneIndex >= 0 && laneIndex < numLanes) {
+            // Place the card in the selected lane
+            card.setCurrentLane(laneIndex);
+            card.setCurrentX(startX + laneIndex * (laneWidth + laneSpacing));
+            card.setCurrentY(600 - 330);
+            card.playCard(card, 0);
+            playerLane.set(laneIndex, card);
+            sketch.printToConsole("+ You placed " + card.getCardName() + " in lane " + (card.getCurrentLane() + 1) + ".");
+            System.out.println("Placed: " + card + "\nIn lane: " + laneIndex);
+        }
+        else if (laneIndex >= numLanes && laneIndex < 8) {
+            // Place the card in the selected lane
+            card.setCurrentLane(laneIndex);
+            card.setCurrentX(startX + (laneIndex - numLanes) * (laneWidth + laneSpacing));
+            card.setCurrentY(30);
+            card.playCard(card, 1);
+            enemyLane.set(laneIndex - numLanes, card);
+            sketch.printToConsole("- Enemy placed " + card.getCardName() + " in lane " + (card.getCurrentLane() - 3) + ".");
+            System.out.println("Placed: " + card + "\nIn lane: " + laneIndex);
+        }
+    }
+
+}

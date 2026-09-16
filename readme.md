@@ -1,6 +1,6 @@
 # The Buddha's Journey: Demo Card Game
 
-A turn-based card game built in Java, inspired by *Journey to the West* and *Yu-Gi-Oh*. Draw from a variety of 15+ unique cards, trigger special effects, and battle enemy AI to reach enlightenment.
+A turn-based card game built in Java, inspired by *Journey to the West* and *Yu-Gi-Oh*. Draw from a variety of 15+ unique cards, trigger special effects, and battle sworn enemies to reach enlightenment.
 
 <img width="2672" height="1338" alt="image" src="https://github.com/user-attachments/assets/1ab83163-2b08-4790-a11d-712f8b4e7246" />
 
@@ -60,7 +60,6 @@ Java, and the [Processing](https://processing.org/) core library for 2D renderin
 ## Known Limitations
 
 - The AI enemy places cards without any strategy. Martin chess.com equivalent.
-- Card art isn't bundled in this repo (see the setup note below). Uou'll need your own `Images/` folder.
 - The save file is a single flat text file so there's only one save slot.
 
-Note this is a personal project built for learning purposes, not a polished commercial game. Balance, save data, and AI behavior are all incredibly rough around the edges.
+Note this is a personal project built for learning purposes, not a polished commercial game. Balance, save data, and AI behavior are subject to change.
